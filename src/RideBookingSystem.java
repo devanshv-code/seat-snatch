@@ -24,7 +24,7 @@ public class RideBookingSystem {
             System.out.println("3) Exit");
             System.out.print("Choose: ");
 
-            int choice = sc.nextInt();
+            int choice = Integer.parseInt(sc.nextLine().trim());
 
             if (choice == 1) registerUser();
             else if (choice == 2) loginFlow();
@@ -38,9 +38,65 @@ public class RideBookingSystem {
     }
 
     static void registerUser(){
+        System.out.println("\n--- Register ---");
+        System.out.print("Username: ");
+        String username = sc.nextLine().trim();
+
+        System.out.print("Password: ");
+        String password = sc.nextLine().trim();
+
+        System.out.print("Gmail: ");
+        String gmail = sc.nextLine().trim();
+
+        String sql = "INSERT INTO user1(username, password, gmail) VALUES (?, ?, ?)";
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, gmail);
+
+            ps.executeUpdate();
+            System.out.println("Registered successfully!");
+
+        } catch (SQLException e) {
+            System.out.println("Registration failed: " + e.getMessage());
+        }
 
     }
     static void loginFlow(){
+        System.out.println("\n--- Login ---");
+        System.out.print("Username: ");
+        String username = sc.nextLine().trim();
+
+        System.out.print("Password: ");
+        String password = sc.nextLine().trim();
+
+        String sql = "SELECT id, username FROM user1 WHERE username=? AND password=?";
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int userId = rs.getInt("id");
+                    String uname = rs.getString("username");
+                    System.out.println("Login successful! Welcome " + uname);
+                    //userMenu(userId, uname);
+                } else {
+                    System.out.println("Wrong username/password!");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Login error: " + e.getMessage());
+        }
 
     }
+
+
 }
